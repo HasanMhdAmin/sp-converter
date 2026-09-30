@@ -11,6 +11,8 @@
     installDismissed: 'installHintDismissed'
   };
   var CURRENCY_NAMES = { USD: 'دولار أمريكي', EUR: 'يورو' };
+  var RATES_API_URL = 'https://sp-proxy-test.eng-amin-h.workers.dev/';
+  var RATES_API_CITY = 'damascus';
 
   var amountFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
   var rateFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 });
@@ -123,6 +125,9 @@
     rateEurInput: $('rateEurInput'),
     settingsError: $('settingsError'),
     cancelSettings: $('cancelSettings'),
+    syncRates: $('syncRates'),
+    syncLabel: $('syncLabel'),
+    syncStatus: $('syncStatus'),
     installBanner: $('installBanner'),
     installBtn: $('installBtn'),
     dismissInstall: $('dismissInstall'),
@@ -274,6 +279,7 @@
     el.rateUsdInput.value = groupDigits(sanitizeRate(String(state.rates.USD)));
     el.rateEurInput.value = groupDigits(sanitizeRate(String(state.rates.EUR)));
     clearSettingsError();
+    setSyncStatus('');
     if (typeof el.dialog.showModal === 'function') {
       el.dialog.showModal();
     } else {
@@ -334,6 +340,64 @@
   function onRateInput(e) {
     reformatInput(e.target, sanitizeRate);
     e.target.parentElement.classList.remove('invalid');
+  }
+
+  // ---------- sync rates from API ----------
+  // The API quotes old S.P. per unit; the app stores new S.P. (old / 100).
+  function extractRates(json) {
+    var list = json && json.ok && json.data && json.data.rates;
+    if (!Array.isArray(list)) throw new Error('bad response');
+    var result = {};
+    ['USD', 'EUR'].forEach(function (code) {
+      var entry = list.filter(function (r) { return r.code === code; })[0];
+      var buy = entry && entry.cities && entry.cities[RATES_API_CITY] && entry.cities[RATES_API_CITY].buy;
+      if (!(typeof buy === 'number' && buy > 0)) throw new Error('missing ' + code);
+      result[code] = Math.round(buy / OLD_SP_FACTOR * 10000) / 10000;
+    });
+    result.updatedAt = json.data.currencies_updated_at || null;
+    return result;
+  }
+
+  function setSyncStatus(msg, isError) {
+    el.syncStatus.textContent = msg;
+    el.syncStatus.hidden = !msg;
+    el.syncStatus.classList.toggle('error', !!isError);
+  }
+
+  function setSyncBusy(busy) {
+    el.syncRates.disabled = busy;
+    el.syncRates.setAttribute('aria-busy', busy ? 'true' : 'false');
+    el.syncLabel.textContent = busy ? 'جارٍ المزامنة…' : 'مزامنة الأسعار من الإنترنت';
+  }
+
+  function syncRates() {
+    setSyncBusy(true);
+    setSyncStatus('');
+    var controller = typeof AbortController === 'function' ? new AbortController() : null;
+    var timer = setTimeout(function () { if (controller) controller.abort(); }, 10000);
+
+    fetch(RATES_API_URL, { cache: 'no-store', signal: controller ? controller.signal : undefined })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (json) {
+        var rates = extractRates(json);
+        el.rateUsdInput.value = groupDigits(sanitizeRate(String(rates.USD)));
+        el.rateEurInput.value = groupDigits(sanitizeRate(String(rates.EUR)));
+        clearSettingsError();
+
+        var ts = rates.updatedAt ? new Date(rates.updatedAt) : null;
+        var when = ts && !isNaN(ts.getTime()) ? ' (تحديث المصدر: ' + (dateFormat ? dateFormat.format(ts) : ts.toLocaleString()) + ')' : '';
+        setSyncStatus('تم جلب سعر الشراء في دمشق' + when + '. اضغط «حفظ» لتطبيقه.');
+      })
+      .catch(function () {
+        setSyncStatus('تعذّرت المزامنة. تحقق من الاتصال بالإنترنت وحاول مجدداً.', true);
+      })
+      .then(function () {
+        clearTimeout(timer);
+        setSyncBusy(false);
+      });
   }
 
   // ---------- toast ----------
@@ -428,6 +492,7 @@
 
   el.openSettings.addEventListener('click', openSettings);
   el.cancelSettings.addEventListener('click', closeSettings);
+  el.syncRates.addEventListener('click', syncRates);
   el.form.addEventListener('submit', saveSettings);
   // Close the sheet when tapping the backdrop.
   el.dialog.addEventListener('click', function (e) {

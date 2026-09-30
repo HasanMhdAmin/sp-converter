@@ -125,6 +125,12 @@
       <div class="sheet-handle" aria-hidden="true"></div>
       <h2 id="settingsTitle">تعديل سعر الصرف</h2>
 
+      <button type="button" class="btn ghost sync-btn" id="syncRates">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 4V1L8 5l4 4V6a6 6 0 0 1 6 6c0 1-.25 1.97-.7 2.8l1.46 1.46A7.95 7.95 0 0 0 20 12a8 8 0 0 0-8-8Zm0 14a6 6 0 0 1-6-6c0-1 .25-1.97.7-2.8L5.24 7.74A7.95 7.95 0 0 0 4 12a8 8 0 0 0 8 8v3l4-4-4-4v3Z"/></svg>
+        <span id="syncLabel">مزامنة الأسعار من الإنترنت</span>
+      </button>
+      <p class="sync-status" id="syncStatus" role="status" aria-live="polite" hidden></p>
+
       <div class="field">
         <label for="rateUsdInput">سعر الدولار الأمريكي — ليرة جديدة مقابل 1 دولار</label>
         <div class="input-wrap">

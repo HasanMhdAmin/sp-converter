@@ -20,6 +20,7 @@ npx serve .
 Upload the folder as-is to GitHub Pages, Netlify or Vercel. All paths are relative, so sub-path hosting (e.g. `user.github.io/sp-converter/`) works.
 
 ## Notes
+- Rate sync: the settings sheet's sync button GETs `RATES_API_URL` (in `app.js`) and fills the inputs from `data.rates[code].cities.damascus.buy` for USD/EUR, divided by 100 (API is in old S.P.). Nothing is stored until the user taps حفظ. This is the app's only network call; everything else works offline.
 - `localStorage` keys: `rateUSD`, `rateEUR`, `ratesUpdatedAt`, `activeCurrency`, `installHintDismissed`.
 - Input accepts Western and Eastern Arabic digits; a typed comma is treated as the decimal point.
 - The service worker is stale-while-revalidate: changes show up on the second load after deploy. Bump `CACHE_VERSION` in `sw.js` only when the asset list changes.
