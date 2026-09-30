@@ -1,5 +1,5 @@
 // Bump CACHE_VERSION when the asset list changes; content updates are picked up automatically.
-var CACHE_VERSION = 'sp-converter-v2';
+var CACHE_VERSION = 'sp-converter-v3';
 var ASSETS = [
   './',
   'index.html',

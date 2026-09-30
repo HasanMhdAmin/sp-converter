@@ -23,4 +23,4 @@ Upload the folder as-is to GitHub Pages, Netlify or Vercel. All paths are relati
 - `localStorage` keys: `rateUSD`, `rateEUR`, `ratesUpdatedAt`, `activeCurrency`, `installHintDismissed`.
 - Input accepts Western and Eastern Arabic digits; a typed comma is treated as the decimal point.
 - The service worker is stale-while-revalidate: changes show up on the second load after deploy. Bump `CACHE_VERSION` in `sw.js` only when the asset list changes.
-- PNG app icons are the logo centered at 64% width on `#002623` (fits the Android maskable safe zone). Render SVG with a real browser (e.g. headless Chrome); `sips` ignores the logo's clip paths.
+- PNG app icons: logo (50% width) plus "Converter" in HayyakumAllah Bold `#b9a779` on `#002623`, kept inside the Android maskable safe zone. Render the 512 px icon with a real browser (headless Chrome; `sips` ignores the logo's clip paths, and headless Chrome can't render windows below ~500 px), then `sips -z` it down to 192 and 180.
