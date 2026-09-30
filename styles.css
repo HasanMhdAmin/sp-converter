@@ -321,6 +321,27 @@ main { display: flex; flex-direction: column; gap: 16px; }
   background: var(--border);
 }
 .sheet-actions { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+.sync-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+.sync-btn[aria-busy="true"] { opacity: .7; cursor: progress; }
+.sync-btn[aria-busy="true"] svg { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.sync-status {
+  margin: -6px 0 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(185, 167, 121, 0.1);
+  color: var(--wheat-100);
+  font-size: .9rem;
+}
+.sync-status.error { background: var(--danger-bg); border-color: var(--danger-border); }
+
 .form-error {
   margin: 0;
   padding: 10px 14px;
