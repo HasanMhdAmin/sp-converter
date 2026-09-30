@@ -14,6 +14,9 @@
   var RATES_API_URL = 'https://sp-proxy-test.eng-amin-h.workers.dev/';
   var RATES_API_CITY = 'damascus';
   var BANKNOTES = [500, 200, 100, 50, 25, 10]; // new S.P. notes, largest first
+  // Banknote images come straight from the GitHub repo, so they load wherever the page is hosted.
+  // Use 'assets/notes/' instead to serve them next to the page.
+  var NOTES_BASE_URL = 'https://raw.githubusercontent.com/HasanMhdAmin/sp-converter/refs/heads/main/assets/notes/';
 
   var amountFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
   var rateFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 });
@@ -278,7 +281,7 @@
       tile.dataset.value = n;
       tile.innerHTML =
         '<button type="button" class="note">' +
-          '<img src="assets/notes/' + n + '.jpg" alt="" width="360" height="165" loading="lazy" decoding="async">' +
+          '<img src="' + NOTES_BASE_URL + n + '.jpg" alt="" width="360" height="165" loading="lazy" decoding="async" crossorigin="anonymous">' +
           '<span class="note-label">' + n + ' ل.س</span>' +
         '</button>' +
         '<span class="note-count" dir="ltr" aria-hidden="true">×0</span>' +
