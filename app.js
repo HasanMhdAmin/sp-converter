@@ -123,7 +123,6 @@
     rateEurInput: $('rateEurInput'),
     settingsError: $('settingsError'),
     cancelSettings: $('cancelSettings'),
-    resetRates: $('resetRates'),
     installBanner: $('installBanner'),
     installBtn: $('installBtn'),
     dismissInstall: $('dismissInstall'),
@@ -430,11 +429,6 @@
   el.openSettings.addEventListener('click', openSettings);
   el.cancelSettings.addEventListener('click', closeSettings);
   el.form.addEventListener('submit', saveSettings);
-  el.resetRates.addEventListener('click', function () {
-    el.rateUsdInput.value = groupDigits(sanitizeRate(String(DEFAULT_RATES.USD)));
-    el.rateEurInput.value = groupDigits(sanitizeRate(String(DEFAULT_RATES.EUR)));
-    clearSettingsError();
-  });
   // Close the sheet when tapping the backdrop.
   el.dialog.addEventListener('click', function (e) {
     if (e.target === el.dialog) closeSettings();
