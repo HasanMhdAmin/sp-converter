@@ -1,16 +1,20 @@
 // Bump CACHE_VERSION when the asset list changes; content updates are picked up automatically.
-var CACHE_VERSION = 'sp-converter-v1';
+var CACHE_VERSION = 'sp-converter-v2';
 var ASSETS = [
   './',
   'index.html',
   'styles.css',
   'app.js',
   'manifest.json',
-  'icons/icon.svg',
+  'icons/logo.svg',
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/apple-touch-icon.png',
-  'icons/favicon-32.png'
+  'icons/favicon-32.png',
+  'fonts/HayyakumAllah-Light.ttf',
+  'fonts/HayyakumAllah-Regular.ttf',
+  'fonts/HayyakumAllah-Medium.ttf',
+  'fonts/HayyakumAllah-Bold.ttf'
 ];
 
 self.addEventListener('install', function (event) {

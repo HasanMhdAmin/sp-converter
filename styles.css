@@ -222,24 +222,11 @@ main { display: flex; flex-direction: column; gap: 16px; }
 }
 
 .old-sp {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 4px 12px;
   margin-top: 8px;
-  padding: 14px 16px;
-  border-radius: 12px;
-  background: rgba(185, 167, 121, 0.12);
-  border: 1px dashed var(--border);
+  padding-top: 14px;
+  border-top: 1px dashed var(--border);
 }
-.old-sp-label { color: var(--accent); font-weight: 500; }
-.old-sp-value {
-  font-size: 1.35rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  word-break: break-all;
-}
+.old-sp .input-wrap { background: rgba(185, 167, 121, 0.08); }
 
 /* Rates */
 .rates { text-align: center; color: var(--text-muted); font-size: .95rem; }

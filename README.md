@@ -4,9 +4,10 @@ Static, installable (PWA) Arabic RTL converter between USD, EUR and the new Syri
 
 ## Files
 - `index.html` — markup (tabs, converter card, rate sheet, install instructions)
-- `styles.css` — mobile-first styling (`#002A27` / `#BCA673`)
+- `styles.css` — mobile-first styling (Forest / Golden Wheat / Deep Umber / Charcoal palette as CSS tokens)
 - `app.js` — conversion, live formatting, `localStorage` persistence, install banner
-- `manifest.json`, `sw.js`, `icons/` — PWA manifest, offline cache, app icons
+- `manifest.json`, `sw.js`, `icons/` — PWA manifest, offline cache, app icons (`icons/logo.svg` is the favicon)
+- `fonts/` — HayyakumAllah (Light 300, Regular 400, Medium 500, Bold 700)
 
 ## Run locally
 Any static server works. The service worker needs `http://localhost` or HTTPS (not `file://`).
@@ -22,4 +23,4 @@ Upload the folder as-is to GitHub Pages, Netlify or Vercel. All paths are relati
 - `localStorage` keys: `rateUSD`, `rateEUR`, `ratesUpdatedAt`, `activeCurrency`, `installHintDismissed`.
 - Input accepts Western and Eastern Arabic digits; a typed comma is treated as the decimal point.
 - The service worker is stale-while-revalidate: changes show up on the second load after deploy. Bump `CACHE_VERSION` in `sw.js` only when the asset list changes.
-- Icons are rendered from `icons/icon.svg` (macOS: `sips -s format png icons/icon.svg --out icons/icon-512.png`, then `sips -z` for smaller sizes).
+- PNG app icons are the logo centered at 64% width on `#002623` (fits the Android maskable safe zone). Render SVG with a real browser (e.g. headless Chrome); `sips` ignores the logo's clip paths.

@@ -4,7 +4,7 @@
     {
       "name": "sp-converter",
       "runtimeExecutable": "node",
-      "runtimeArgs": ["-e", "const h=require('http'),f=require('fs'),p=require('path');const R='/Users/hasan_amin/Documents/Private/projects/frontend/sp-converter';const T={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.json':'application/manifest+json','.png':'image/png','.svg':'image/svg+xml'};h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const fp=p.join(R,u);if(!fp.startsWith(R))return s.writeHead(403).end();f.readFile(fp,(e,d)=>{if(e)return s.writeHead(404).end('404');s.writeHead(200,{'Content-Type':T[p.extname(fp)]||'application/octet-stream','Cache-Control':'no-cache'}).end(d)})}).listen(5173,()=>console.log('http://localhost:5173'))"],
+      "runtimeArgs": ["-e", "const h=require('http'),f=require('fs'),p=require('path');const R='/Users/hasan_amin/Documents/Private/projects/frontend/sp-converter';const T={'.html':'text/html; charset=utf-8','.css':'text/css','.js':'text/javascript','.json':'application/manifest+json','.png':'image/png','.svg':'image/svg+xml','.ttf':'font/ttf'};h.createServer((q,s)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u.endsWith('/'))u+='index.html';const fp=p.join(R,u);if(!fp.startsWith(R))return s.writeHead(403).end();f.readFile(fp,(e,d)=>{if(e)return s.writeHead(404).end('404');s.writeHead(200,{'Content-Type':T[p.extname(fp)]||'application/octet-stream','Cache-Control':'no-cache'}).end(d)})}).listen(5173,()=>console.log('http://localhost:5173'))"],
       "port": 5173
     }
   ]

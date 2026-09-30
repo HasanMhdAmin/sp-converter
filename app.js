@@ -59,6 +59,8 @@
   }
 
   function sanitize(str) { return sanitizeDecimal(str, 11, 2); }
+  // Old S.P. is new S.P. × 100, so it gets two more integer digits.
+  function sanitizeOld(str) { return sanitizeDecimal(str, 13, 2); }
   function sanitizeRate(str) { return sanitizeDecimal(str, 7, 4); }
 
   // Add thousands separators to a sanitized string, keeping a trailing "." or typed decimals.
@@ -70,8 +72,9 @@
     return parts.length > 1 ? intPart + '.' + parts[1] : intPart;
   }
 
+  // Inputs are already sanitized on input; just drop the thousands separators.
   function parseAmount(str) {
-    var n = parseFloat(sanitize(str));
+    var n = parseFloat(normalizeDigits(str).replace(/[^\d.]/g, ''));
     return isFinite(n) ? n : null;
   }
 
@@ -95,7 +98,7 @@
     },
     updatedAt: load(KEYS.updatedAt),
     currency: load(KEYS.currency) === 'EUR' ? 'EUR' : 'USD',
-    source: 'foreign', // which field the user last edited: 'foreign' | 'sp'
+    source: 'foreign', // which field the user last edited: 'foreign' | 'sp' | 'old'
     value: null        // numeric value of that field
   };
 
@@ -108,7 +111,7 @@
     foreignLabel: $('foreignLabel'),
     foreignUnit: $('foreignUnit'),
     spInput: $('spInput'),
-    oldSp: $('oldSpOutput'),
+    oldSpInput: $('oldSpInput'),
     clearBtn: $('clearBtn'),
     rateUsdText: $('rateUsdText'),
     rateEurText: $('rateEurText'),
@@ -184,23 +187,22 @@
 
   function render() {
     var rate = currentRate();
-    var spValue = null;
+    var v = state.value;
+    // Everything is derived from the new S.P. amount; the edited field is left as typed.
+    var spValue = v === null ? null
+      : state.source === 'foreign' ? v * rate
+      : state.source === 'old' ? v / OLD_SP_FACTOR
+      : v;
 
-    if (state.source === 'foreign') {
-      spValue = state.value === null ? null : state.value * rate;
-      el.spInput.value = formatAmount(spValue);
-    } else {
-      spValue = state.value;
-      el.foreignInput.value = formatAmount(spValue === null ? null : spValue / rate);
-    }
-
-    el.oldSp.textContent = spValue === null ? '0' : formatAmount(spValue * OLD_SP_FACTOR);
+    if (state.source !== 'foreign') el.foreignInput.value = formatAmount(spValue === null ? null : spValue / rate);
+    if (state.source !== 'sp') el.spInput.value = formatAmount(spValue);
+    if (state.source !== 'old') el.oldSpInput.value = formatAmount(spValue === null ? null : spValue * OLD_SP_FACTOR);
     fitAmounts();
   }
 
   // Shrink the font for long numbers so they stay fully visible on narrow screens.
   function fitAmounts() {
-    [el.foreignInput, el.spInput].forEach(function (input) {
+    [el.foreignInput, el.spInput, el.oldSpInput].forEach(function (input) {
       var len = input.value.length;
       input.classList.toggle('long', len > 10 && len <= 14);
       input.classList.toggle('xlong', len > 14);
@@ -208,8 +210,9 @@
   }
 
   function onAmountInput(source) {
+    var sanitizer = source === 'old' ? sanitizeOld : sanitize;
     return function (e) {
-      reformatInput(e.target, sanitize);
+      reformatInput(e.target, sanitizer);
       state.source = source;
       state.value = parseAmount(e.target.value);
       render();
@@ -404,13 +407,15 @@
   }
 
   // ---------- wiring ----------
-  [el.foreignInput, el.spInput, el.rateUsdInput, el.rateEurInput].forEach(function (input) {
+  [el.foreignInput, el.spInput, el.oldSpInput, el.rateUsdInput, el.rateEurInput].forEach(function (input) {
     input.addEventListener('beforeinput', handleBeforeInput);
   });
   el.foreignInput.addEventListener('input', onAmountInput('foreign'));
   el.spInput.addEventListener('input', onAmountInput('sp'));
-  el.foreignInput.addEventListener('blur', onAmountBlur);
-  el.spInput.addEventListener('blur', onAmountBlur);
+  el.oldSpInput.addEventListener('input', onAmountInput('old'));
+  [el.foreignInput, el.spInput, el.oldSpInput].forEach(function (input) {
+    input.addEventListener('blur', onAmountBlur);
+  });
   el.rateUsdInput.addEventListener('input', onRateInput);
   el.rateEurInput.addEventListener('input', onRateInput);
 
