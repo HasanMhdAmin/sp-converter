@@ -81,6 +81,19 @@
         <p class="rates-updated" id="ratesUpdated" hidden></p>
       </section>
 
+      <section class="card notes" aria-labelledby="notesTitle">
+        <div class="notes-head">
+          <h2 id="notesTitle">عدّ الأوراق النقدية</h2>
+          <p class="notes-hint">اضغط على الورقة لإضافتها، و«−» لإنقاصها.</p>
+        </div>
+        <div class="notes-grid" id="notesGrid"></div>
+        <p class="notes-feedback" id="notesFeedback" role="status" aria-live="polite"></p>
+        <div class="notes-actions">
+          <button type="button" class="btn ghost small" id="suggestNotes">اقتراح</button>
+          <button type="button" class="btn ghost small" id="resetNotes">تصفير</button>
+        </div>
+      </section>
+
       <!-- Add to Home Screen instructions -->
       <section class="install" id="installBanner" hidden aria-labelledby="installTitle">
         <div class="install-head">

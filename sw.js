@@ -1,5 +1,5 @@
 // Bump CACHE_VERSION when the asset list changes; content updates are picked up automatically.
-var CACHE_VERSION = 'sp-converter-v3';
+var CACHE_VERSION = 'sp-converter-v4';
 var ASSETS = [
   './',
   'index.html',
@@ -14,7 +14,13 @@ var ASSETS = [
   'fonts/HayyakumAllah-Light.ttf',
   'fonts/HayyakumAllah-Regular.ttf',
   'fonts/HayyakumAllah-Medium.ttf',
-  'fonts/HayyakumAllah-Bold.ttf'
+  'fonts/HayyakumAllah-Bold.ttf',
+  'assets/notes/10.jpg',
+  'assets/notes/25.jpg',
+  'assets/notes/50.jpg',
+  'assets/notes/100.jpg',
+  'assets/notes/200.jpg',
+  'assets/notes/500.jpg'
 ];
 
 self.addEventListener('install', function (event) {

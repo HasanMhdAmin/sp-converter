@@ -268,6 +268,104 @@ main { display: flex; flex-direction: column; gap: 16px; }
   text-underline-offset: 4px;
 }
 
+/* Banknotes */
+.notes { gap: 12px; padding-bottom: 16px; }
+.notes-head h2 { margin: 0; font-size: 1.1rem; color: var(--accent); }
+.notes-hint { margin: 2px 0 0; font-size: .85rem; color: var(--text-muted); opacity: .8; }
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.note-tile { position: relative; }
+
+.note {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  touch-action: manipulation; /* no double-tap zoom when tapping fast */
+  -webkit-user-select: none;
+  user-select: none;
+}
+.note img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 360 / 165;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(22, 22, 22, 0.4);
+  transition: filter .2s, opacity .2s, transform .1s;
+}
+.note:active img { transform: scale(.96); }
+.note-label { font-size: .85rem; font-weight: 500; color: var(--text-muted); }
+
+.note-count {
+  position: absolute;
+  top: -8px;
+  right: -6px; /* physical sides: the badge is dir="ltr", so logical insets would flip */
+  min-width: 30px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: .9rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(22, 22, 22, 0.4);
+}
+
+.note-minus {
+  position: absolute;
+  top: -10px;
+  left: -6px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1.5px solid var(--accent);
+  border-radius: 50%;
+  background: var(--forest-900);
+  color: var(--accent);
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  touch-action: manipulation;
+}
+
+/* Notes not counted yet are gray */
+.note-tile.empty img { filter: grayscale(1); opacity: .4; }
+.note-tile.empty .note-label { opacity: .6; }
+.note-tile.empty .note-count,
+.note-tile.empty .note-minus { display: none; }
+
+.notes-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn.small { min-height: 44px; padding: 6px 12px; font-size: .95rem; }
+.btn:disabled { opacity: .4; cursor: default; }
+
+.notes-feedback {
+  margin: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: rgba(185, 167, 121, 0.1);
+  font-size: .95rem;
+}
+.notes-feedback.ok { border-color: var(--forest-500); background: rgba(66, 129, 119, 0.45); }
+.notes-feedback.missing { border-color: var(--danger-border); background: var(--danger-bg); }
+.notes-feedback.over { border-color: var(--accent); background: rgba(185, 167, 121, 0.22); }
+.notes-feedback strong { font-weight: 700; }
+.nowrap { white-space: nowrap; }
+
 /* Install banner */
 .install {
   padding: 16px;

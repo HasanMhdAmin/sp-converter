@@ -13,6 +13,7 @@
   var CURRENCY_NAMES = { USD: 'دولار أمريكي', EUR: 'يورو' };
   var RATES_API_URL = 'https://sp-proxy-test.eng-amin-h.workers.dev/';
   var RATES_API_CITY = 'damascus';
+  var BANKNOTES = [500, 200, 100, 50, 25, 10]; // new S.P. notes, largest first
 
   var amountFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 });
   var rateFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 });
@@ -132,7 +133,11 @@
     installBtn: $('installBtn'),
     dismissInstall: $('dismissInstall'),
     showInstall: $('showInstall'),
-    toast: $('toast')
+    toast: $('toast'),
+    notesGrid: $('notesGrid'),
+    notesFeedback: $('notesFeedback'),
+    suggestNotes: $('suggestNotes'),
+    resetNotes: $('resetNotes')
   };
 
   // ---------- live-formatting inputs ----------
@@ -202,6 +207,7 @@
     if (state.source !== 'sp') el.spInput.value = formatAmount(spValue);
     if (state.source !== 'old') el.oldSpInput.value = formatAmount(spValue === null ? null : spValue * OLD_SP_FACTOR);
     fitAmounts();
+    renderNotes(spValue === null ? null : round2(spValue));
   }
 
   // Shrink the font for long numbers so they stay fully visible on narrow screens.
@@ -228,6 +234,116 @@
     var n = parseAmount(e.target.value);
     e.target.value = formatAmount(n);
     fitAmounts();
+  }
+
+  // ---------- banknotes ----------
+  // Fewest notes that cover as much of `amount` as possible using only `notes`.
+  // Uses the largest note for the bulk, then an exact DP over the last few thousand,
+  // so it finds e.g. 30 = 10 × 3 where a greedy 25 + ... would get stuck.
+  function breakdown(amount, notes) {
+    var counts = {};
+    notes.forEach(function (n) { counts[n] = 0; });
+    var whole = Math.floor(amount);
+    if (!notes.length || whole <= 0) return { counts: counts, covered: 0, total: 0 };
+
+    var largest = Math.max.apply(null, notes);
+    var bulk = Math.max(0, Math.floor(whole / largest) - 10);
+    var rest = whole - bulk * largest;
+
+    var best = [0], via = [0];
+    for (var v = 1; v <= rest; v++) {
+      best[v] = Infinity;
+      for (var i = 0; i < notes.length; i++) {
+        var n = notes[i];
+        if (n <= v && best[v - n] + 1 < best[v]) { best[v] = best[v - n] + 1; via[v] = n; }
+      }
+    }
+    var reach = rest;
+    while (reach > 0 && best[reach] === Infinity) reach--;
+
+    for (var x = reach; x > 0; x -= via[x]) counts[via[x]]++;
+    counts[largest] += bulk;
+    return { counts: counts, covered: reach + bulk * largest, total: best[reach] + bulk };
+  }
+
+  // How many of each note the user has tapped in.
+  var noteCounts = {};
+  BANKNOTES.forEach(function (n) { noteCounts[n] = 0; });
+  var targetAmount = null;
+
+  function buildNotes() {
+    BANKNOTES.forEach(function (n) {
+      var tile = document.createElement('div');
+      tile.className = 'note-tile';
+      tile.dataset.value = n;
+      tile.innerHTML =
+        '<button type="button" class="note">' +
+          '<img src="assets/notes/' + n + '.jpg" alt="" width="360" height="165" loading="lazy" decoding="async">' +
+          '<span class="note-label">' + n + ' ل.س</span>' +
+        '</button>' +
+        '<span class="note-count" dir="ltr" aria-hidden="true">×0</span>' +
+        '<button type="button" class="note-minus" aria-label="إنقاص ورقة ' + n + '">−</button>';
+      tile.querySelector('.note').addEventListener('click', function () { changeNote(n, 1); });
+      tile.querySelector('.note-minus').addEventListener('click', function () { changeNote(n, -1); });
+      el.notesGrid.appendChild(tile);
+    });
+  }
+
+  function changeNote(n, delta) {
+    noteCounts[n] = Math.max(0, noteCounts[n] + delta);
+    renderNotes(targetAmount);
+  }
+
+  function setAllNotes(counts) {
+    BANKNOTES.forEach(function (n) { noteCounts[n] = counts[n] || 0; });
+    renderNotes(targetAmount);
+  }
+
+  // Arabic counted noun: 1 ورقة واحدة, 2 ورقتان, 3–10 أوراق, otherwise ورقة.
+  function countNotes(n) {
+    if (n === 1) return 'ورقة واحدة';
+    if (n === 2) return 'ورقتان';
+    var lastTwo = n % 100;
+    return amountFormat.format(n) + (lastTwo >= 3 && lastTwo <= 10 ? ' أوراق' : ' ورقة');
+  }
+
+  function setNotesFeedback(html, kind) {
+    el.notesFeedback.innerHTML = html;
+    el.notesFeedback.className = 'notes-feedback' + (kind ? ' ' + kind : '');
+  }
+
+  function sp(n) { return '<span class="nowrap"><bdi dir="ltr">' + formatAmount(n) + '</bdi> ل.س</span>'; }
+
+  function renderNotes(amount) {
+    targetAmount = amount;
+    var sum = 0, pieces = 0;
+
+    Array.prototype.forEach.call(el.notesGrid.children, function (tile) {
+      var n = Number(tile.dataset.value);
+      var count = noteCounts[n];
+      sum += n * count;
+      pieces += count;
+      tile.classList.toggle('empty', count === 0);
+      tile.querySelector('.note-count').textContent = '×' + count;
+      tile.querySelector('.note').setAttribute('aria-label',
+        'إضافة ورقة ' + n + ' ليرة، العدد الحالي ' + count);
+    });
+
+    var total = 'المجموع <strong>' + sp(sum) + '</strong>' + (pieces ? ' (' + countNotes(pieces) + ')' : '');
+
+    if (!amount) {
+      setNotesFeedback(pieces ? total + '. أدخل المبلغ المطلوب للمقارنة.' : 'أدخل مبلغاً ثم اضغط على الأوراق لعدّها.');
+    } else if (!pieces) {
+      setNotesFeedback('المطلوب <strong>' + sp(amount) + '</strong>. اضغط على الأوراق لعدّها.');
+    } else {
+      var diff = round2(sum - amount);
+      if (diff === 0) setNotesFeedback('✓ المبلغ مطابق: ' + total + '.', 'ok');
+      else if (diff < 0) setNotesFeedback(total + ' — ينقص <strong>' + sp(-diff) + '</strong>.', 'missing');
+      else setNotesFeedback(total + ' — زيادة <strong>' + sp(diff) + '</strong>.', 'over');
+    }
+
+    el.suggestNotes.disabled = !amount;
+    el.resetNotes.disabled = !pieces;
   }
 
   // ---------- tabs ----------
@@ -482,6 +598,11 @@
   el.rateUsdInput.addEventListener('input', onRateInput);
   el.rateEurInput.addEventListener('input', onRateInput);
 
+  el.suggestNotes.addEventListener('click', function () {
+    if (targetAmount) setAllNotes(breakdown(targetAmount, BANKNOTES).counts);
+  });
+  el.resetNotes.addEventListener('click', function () { setAllNotes({}); });
+
   el.clearBtn.addEventListener('click', function () {
     state.value = null;
     state.source = 'foreign';
@@ -500,6 +621,7 @@
   });
 
   // ---------- init ----------
+  buildNotes();
   renderRates();
   setCurrency(state.currency);
   setupInstall();
