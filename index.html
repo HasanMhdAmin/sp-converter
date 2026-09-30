@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>محوّل الليرة السورية</title>
+  <meta name="description" content="تحويل بين الدولار الأمريكي واليورو والليرة السورية الجديدة، مع عرض القيمة بالليرة القديمة.">
+  <meta name="theme-color" content="#002623">
+
+  <!-- PWA / iOS home screen -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="محوّل الليرة">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="app-header">
+      <h1 class="app-title">محوّل الليرة السورية</h1>
+      <button type="button" class="icon-btn" id="openSettings" aria-label="تعديل سعر الصرف" title="تعديل سعر الصرف">
+        <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+          <path fill="currentColor" d="M19.14 12.94a7.07 7.07 0 0 0 .06-.94 7.07 7.07 0 0 0-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.49.49 0 0 0-.59-.22l-2.39.96a7.03 7.03 0 0 0-1.62-.94l-.36-2.54a.48.48 0 0 0-.48-.41h-3.84a.48.48 0 0 0-.48.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96a.49.49 0 0 0-.59.22L2.74 8.87a.48.48 0 0 0 .12.61l2.03 1.58a7.4 7.4 0 0 0 0 1.88l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.49.38 1.03.7 1.62.94l.36 2.54c.05.24.25.41.48.41h3.84c.24 0 .44-.17.48-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32a.49.49 0 0 0-.12-.61l-2.03-1.58ZM12 15.6A3.6 3.6 0 1 1 12 8.4a3.6 3.6 0 0 1 0 7.2Z"/>
+        </svg>
+      </button>
+    </header>
+
+    <main>
+      <div class="tabs" role="tablist" aria-label="العملة الأجنبية">
+        <button type="button" class="tab" role="tab" id="tab-USD" data-currency="USD" aria-controls="converter" aria-selected="true">
+          دولار أمريكي <span class="tab-code">USD</span>
+        </button>
+        <button type="button" class="tab" role="tab" id="tab-EUR" data-currency="EUR" aria-controls="converter" aria-selected="false" tabindex="-1">
+          يورو <span class="tab-code">EUR</span>
+        </button>
+      </div>
+
+      <section class="card" id="converter" role="tabpanel" aria-labelledby="tab-USD">
+        <div class="field">
+          <label for="foreignInput" id="foreignLabel">دولار أمريكي</label>
+          <div class="input-wrap">
+            <input id="foreignInput" class="amount" type="text" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="0" aria-describedby="foreignUnit">
+            <span class="unit" id="foreignUnit">USD</span>
+          </div>
+        </div>
+
+        <div class="swap-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22"><path fill="currentColor" d="M7 3 3 7h3v7h2V7h3L7 3Zm10 18 4-4h-3v-7h-2v7h-3l4 4Z"/></svg>
+        </div>
+
+        <div class="field">
+          <label for="spInput">ليرة سورية جديدة</label>
+          <div class="input-wrap">
+            <input id="spInput" class="amount" type="text" inputmode="decimal" autocomplete="off" dir="ltr" placeholder="0" aria-describedby="spUnit">
+            <span class="unit" id="spUnit">ل.س</span>
+          </div>
+        </div>
+
+        <div class="old-sp" aria-live="polite">
+          <span class="old-sp-label">ليرة سورية قديمة</span>
+          <output id="oldSpOutput" class="old-sp-value" for="spInput foreignInput" dir="ltr">0</output>
+        </div>
+
+        <button type="button" class="text-btn" id="clearBtn">مسح</button>
+      </section>
+
+      <section class="rates" aria-label="سعر الصرف الحالي">
+        <p class="rates-line">
+          <span>1 دولار = <bdi id="rateUsdText" dir="ltr">137.5</bdi> ل.س</span>
+          <span class="sep" aria-hidden="true">•</span>
+          <span>1 يورو = <bdi id="rateEurText" dir="ltr">155</bdi> ل.س</span>
+        </p>
+        <p class="rates-updated" id="ratesUpdated" hidden></p>
+      </section>
+
+      <!-- Add to Home Screen instructions -->
+      <section class="install" id="installBanner" hidden aria-labelledby="installTitle">
+        <div class="install-head">
+          <h2 id="installTitle">أضِف التطبيق إلى الشاشة الرئيسية</h2>
+          <button type="button" class="icon-btn small" id="dismissInstall" aria-label="إغلاق">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.3 5.7 12 12l6.3 6.3-1.4 1.4L10.6 13.4 4.3 19.7l-1.4-1.4L9.2 12 2.9 5.7l1.4-1.4 6.3 6.3 6.3-6.3 1.4 1.4Z"/></svg>
+          </button>
+        </div>
+
+        <button type="button" class="btn primary install-btn" id="installBtn" hidden>تثبيت التطبيق</button>
+
+        <div class="install-steps" data-platform="ios">
+          <h3>آيفون / آيباد (Safari)</h3>
+          <ol>
+            <li>اضغط على زر المشاركة
+              <svg class="inline-icon" viewBox="0 0 24 24" width="18" height="18" aria-label="زر المشاركة"><path fill="currentColor" d="M12 2 7.5 6.5l1.4 1.4L11 5.8V15h2V5.8l2.1 2.1 1.4-1.4L12 2Zm-7 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V10h-4v2h2v8H7v-8h2v-2H5Z"/></svg>
+              أسفل الشاشة.</li>
+            <li>اختر «إضافة إلى الشاشة الرئيسية».</li>
+            <li>اضغط «إضافة».</li>
+          </ol>
+        </div>
+
+        <div class="install-steps" data-platform="android">
+          <h3>أندرويد (Chrome)</h3>
+          <ol>
+            <li>اضغط على القائمة <strong dir="ltr">⋮</strong> أعلى الشاشة.</li>
+            <li>اختر «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق».</li>
+            <li>اضغط «إضافة» للتأكيد.</li>
+          </ol>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <button type="button" class="text-btn" id="showInstall" hidden>كيفية إضافة التطبيق إلى الشاشة الرئيسية</button>
+    </footer>
+  </div>
+
+  <!-- Rate settings (bottom sheet) -->
+  <dialog class="sheet" id="settingsDialog" aria-labelledby="settingsTitle">
+    <form id="settingsForm" method="dialog" novalidate>
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <h2 id="settingsTitle">تعديل سعر الصرف</h2>
+
+      <div class="field">
+        <label for="rateUsdInput">سعر الدولار الأمريكي — ليرة جديدة مقابل 1 دولار</label>
+        <div class="input-wrap">
+          <input id="rateUsdInput" class="amount" type="text" inputmode="decimal" autocomplete="off" dir="ltr" required>
+          <span class="unit">ل.س</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="rateEurInput">سعر اليورو — ليرة جديدة مقابل 1 يورو</label>
+        <div class="input-wrap">
+          <input id="rateEurInput" class="amount" type="text" inputmode="decimal" autocomplete="off" dir="ltr" required>
+          <span class="unit">ل.س</span>
+        </div>
+      </div>
+
+      <p class="form-error" id="settingsError" role="alert" hidden>يرجى إدخال سعر صحيح أكبر من صفر.</p>
+
+      <div class="sheet-actions">
+        <button type="submit" class="btn primary" value="save">حفظ</button>
+        <button type="button" class="btn ghost" id="cancelSettings">إلغاء</button>
+      </div>
+      <button type="button" class="text-btn" id="resetRates">استعادة الأسعار الافتراضية</button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

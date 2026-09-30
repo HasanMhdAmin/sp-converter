@@ -1,0 +1,18 @@
+{
+  "name": "محوّل الليرة السورية",
+  "short_name": "محوّل الليرة",
+  "description": "تحويل بين الدولار الأمريكي واليورو والليرة السورية الجديدة والقديمة",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#002623",
+  "background_color": "#002623",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
