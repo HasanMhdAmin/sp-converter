@@ -1,5 +1,5 @@
 // Bump CACHE_VERSION when the asset list changes; content updates are picked up automatically.
-var CACHE_VERSION = 'sp-converter-v4';
+var CACHE_VERSION = 'sp-converter-v5';
 var ASSETS = [
   './',
   'index.html',
@@ -14,14 +14,11 @@ var ASSETS = [
   'fonts/HayyakumAllah-Light.ttf',
   'fonts/HayyakumAllah-Regular.ttf',
   'fonts/HayyakumAllah-Medium.ttf',
-  'fonts/HayyakumAllah-Bold.ttf',
-  'assets/notes/10.jpg',
-  'assets/notes/25.jpg',
-  'assets/notes/50.jpg',
-  'assets/notes/100.jpg',
-  'assets/notes/200.jpg',
-  'assets/notes/500.jpg'
+  'fonts/HayyakumAllah-Bold.ttf'
 ];
+
+// Other hosts whose files are cached for offline use (banknote images on GitHub).
+var CACHED_ORIGINS = ['https://raw.githubusercontent.com'];
 
 self.addEventListener('install', function (event) {
   event.waitUntil(
@@ -44,7 +41,8 @@ self.addEventListener('activate', function (event) {
 // Stale-while-revalidate: answer from cache instantly (works offline), refresh the cache in the background.
 self.addEventListener('fetch', function (event) {
   var req = event.request;
-  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  var origin = new URL(req.url).origin;
+  if (req.method !== 'GET' || (origin !== self.location.origin && CACHED_ORIGINS.indexOf(origin) === -1)) return;
 
   event.respondWith(
     caches.open(CACHE_VERSION).then(function (cache) {
